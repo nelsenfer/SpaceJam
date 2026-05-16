@@ -12,7 +12,10 @@ public class PlayerController : MonoBehaviour
     public Transform firePoint;
     public float fireCooldown = 0.5f;
 
-    [Header("Aim Dot")]
+    [Header("Laser Sight & Aim")]
+    public LineRenderer laserLine;
+    public float laserDistance = 15f;
+    public LayerMask obstacleLayer;
     public Transform redDot;
 
     Rigidbody2D rb;
@@ -74,6 +77,7 @@ public class PlayerController : MonoBehaviour
         aimPivot.rotation = Quaternion.Lerp(aimPivot.rotation, targetRotation, aimLerpSpeed * Time.unscaledDeltaTime);
 
         UpdateAnimationDirection();
+        DrawLaser();
     }
 
     void FixedUpdate()
@@ -105,6 +109,24 @@ public class PlayerController : MonoBehaviour
         {
             Instantiate(bulletPrefab, firePoint.position, aimPivot.rotation);
             nextFireTime = Time.unscaledTime + fireCooldown;
+        }
+    }
+
+    void DrawLaser()
+    {
+        if (laserLine == null || firePoint == null) return;
+
+        laserLine.SetPosition(0, firePoint.position);
+
+        RaycastHit2D hit = Physics2D.Raycast(firePoint.position, aimPivot.up, laserDistance, obstacleLayer);
+
+        if (hit.collider != null)
+        {
+            laserLine.SetPosition(1, hit.point);
+        }
+        else
+        {
+            laserLine.SetPosition(1, firePoint.position + (Vector3)aimPivot.up * laserDistance);
         }
     }
 }
