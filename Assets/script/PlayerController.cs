@@ -101,6 +101,8 @@ public class PlayerController : MonoBehaviour
             anim.SetFloat("LookX", 0f);
             anim.SetFloat("LookY", lookDir.y > 0 ? 1f : -1f);
         }
+
+        anim.SetFloat("Speed", moveInput.sqrMagnitude);
     }
 
     void Shoot()

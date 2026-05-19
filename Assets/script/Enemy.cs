@@ -3,7 +3,9 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [Header("Detection")]
-    public float detectionRange = 10f;
+    public float closeDetectionRange = 5f;
+    public float lightDetectionRange = 15f;
+    public float lightConeAngle = 90f;
     LayerMask wallLayer;
 
     [Header("Shooting")]
@@ -14,6 +16,7 @@ public class Enemy : MonoBehaviour
 
     Rigidbody2D rb;
     Transform player;
+    Transform playerAimPivot;
     bool isDead = false;
 
     bool isAiming = false;
@@ -25,16 +28,26 @@ public class Enemy : MonoBehaviour
         wallLayer = LayerMask.GetMask("Wall");
 
         GameObject p = GameObject.FindGameObjectWithTag("Player");
-        if (p != null) player = p.transform;
+        if (p != null)
+        {
+            player = p.transform;
+            playerAimPivot = p.transform.Find("AimPivot");
+
+            if (playerAimPivot == null)
+            {
+                playerAimPivot = p.transform;
+            }
+        }
     }
 
     void Update()
     {
         if (isDead || player == null) return;
 
-        float distance = Vector2.Distance(transform.position, player.position);
+        bool closeRange = IsPlayerInCloseRange();
+        bool inLight = IsInLightCone();
 
-        if (distance <= detectionRange && HasLineOfSight())
+        if (closeRange || inLight)
         {
             RotateTowardsPlayer();
 
@@ -42,6 +55,9 @@ public class Enemy : MonoBehaviour
             {
                 isAiming = true;
                 actionTimer = aimDelay;
+
+                if (closeRange) Debug.Log("⚠️ TERDETEKSI: Player masuk radius dekat!");
+                else if (inLight) Debug.Log("🚨 TERDETEKSI: Player tersorot cahaya senter!");
             }
             else
             {
@@ -55,17 +71,39 @@ public class Enemy : MonoBehaviour
         }
         else
         {
+            if (isAiming)
+            {
+                Debug.Log("✅ AMAN: Target hilang dari pandangan.");
+            }
             isAiming = false;
         }
     }
 
-    bool HasLineOfSight()
+    bool IsPlayerInCloseRange()
     {
-        Vector2 dirToPlayer = (player.position - transform.position).normalized;
-        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        float distance = Vector2.Distance(transform.position, player.position);
+        if (distance > closeDetectionRange) return false;
 
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToPlayer, distanceToPlayer, wallLayer);
+        Vector2 dirToPlayer = (player.position - transform.position).normalized;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToPlayer, distance, wallLayer);
         return hit.collider == null;
+    }
+
+    bool IsInLightCone()
+    {
+        float distance = Vector2.Distance(transform.position, player.position);
+        if (distance > lightDetectionRange) return false;
+
+        Vector2 dirFromPlayer = (transform.position - playerAimPivot.position).normalized;
+        float angleToEnemy = Vector2.Angle(playerAimPivot.up, dirFromPlayer);
+
+        if (angleToEnemy <= lightConeAngle / 2f)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(playerAimPivot.position, dirFromPlayer, distance, wallLayer);
+            return hit.collider == null;
+        }
+
+        return false;
     }
 
     void RotateTowardsPlayer()
@@ -80,6 +118,7 @@ public class Enemy : MonoBehaviour
         if (bulletPrefab != null && firePoint != null)
         {
             Instantiate(bulletPrefab, firePoint.position, transform.rotation);
+            Debug.Log("💥 Musuh Menembak!");
         }
     }
 
@@ -87,6 +126,8 @@ public class Enemy : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
+
+        Debug.Log("💀 Musuh Tewas Terkena Hit!");
 
         if (rb != null)
         {
