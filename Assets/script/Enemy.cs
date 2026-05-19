@@ -2,23 +2,31 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    public enum BehaviorType { Stationary, Patrol }
+
+    [Header("Behavior Settings")]
+    public BehaviorType behavior = BehaviorType.Stationary;
+    public float patrolSpeed = 2f;
+    public Transform[] waypoints;
+    private int currentWaypointIndex = 0;
+
     [Header("Detection")]
-    public float closeDetectionRange = 5f;
-    public float lightDetectionRange = 15f;
-    public float lightConeAngle = 90f;
+    public float closeDetectionRange = 5f; 
+    public float lightDetectionRange = 15f; 
+    public float lightConeAngle = 90f; 
     LayerMask wallLayer;
 
     [Header("Shooting")]
     public GameObject bulletPrefab;
     public Transform firePoint;
-    public float aimDelay = 1f;
-    public float fireCooldown = 3f;
+    public float aimDelay = 1f; 
+    public float fireCooldown = 3f; 
 
     Rigidbody2D rb;
     Transform player;
     Transform playerAimPivot;
     bool isDead = false;
-
+    
     bool isAiming = false;
     float actionTimer = 0f;
 
@@ -28,14 +36,14 @@ public class Enemy : MonoBehaviour
         wallLayer = LayerMask.GetMask("Wall");
 
         GameObject p = GameObject.FindGameObjectWithTag("Player");
-        if (p != null)
+        if (p != null) 
         {
             player = p.transform;
             playerAimPivot = p.transform.Find("AimPivot");
-
-            if (playerAimPivot == null)
+            
+            if (playerAimPivot == null) 
             {
-                playerAimPivot = p.transform;
+                playerAimPivot = p.transform; 
             }
         }
     }
@@ -49,13 +57,13 @@ public class Enemy : MonoBehaviour
 
         if (closeRange || inLight)
         {
-            RotateTowardsPlayer();
+            RotateTowardsTarget(player.position);
 
             if (!isAiming)
             {
                 isAiming = true;
-                actionTimer = aimDelay;
-
+                actionTimer = aimDelay; 
+                
                 if (closeRange) Debug.Log("⚠️ TERDETEKSI: Player masuk radius dekat!");
                 else if (inLight) Debug.Log("🚨 TERDETEKSI: Player tersorot cahaya senter!");
             }
@@ -65,17 +73,39 @@ public class Enemy : MonoBehaviour
                 if (actionTimer <= 0f)
                 {
                     Shoot();
-                    actionTimer = fireCooldown;
+                    actionTimer = fireCooldown; 
                 }
             }
         }
         else
         {
-            if (isAiming)
+            if (isAiming) 
             {
                 Debug.Log("✅ AMAN: Target hilang dari pandangan.");
             }
-            isAiming = false;
+            isAiming = false; 
+
+            if (behavior == BehaviorType.Patrol)
+            {
+                Patrol();
+            }
+        }
+    }
+
+    void Patrol()
+    {
+        if (waypoints == null || waypoints.Length == 0) return;
+
+        Transform targetWaypoint = waypoints[currentWaypointIndex];
+        Vector2 targetPos = targetWaypoint.position;
+        Vector2 currentPos = transform.position;
+
+        RotateTowardsTarget(targetWaypoint.position);
+        transform.position = Vector2.MoveTowards(currentPos, targetPos, patrolSpeed * Time.deltaTime);
+
+        if (Vector2.Distance(transform.position, targetPos) < 0.1f)
+        {
+            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
         }
     }
 
@@ -86,7 +116,7 @@ public class Enemy : MonoBehaviour
 
         Vector2 dirToPlayer = (player.position - transform.position).normalized;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToPlayer, distance, wallLayer);
-        return hit.collider == null;
+        return hit.collider == null; 
     }
 
     bool IsInLightCone()
@@ -100,15 +130,15 @@ public class Enemy : MonoBehaviour
         if (angleToEnemy <= lightConeAngle / 2f)
         {
             RaycastHit2D hit = Physics2D.Raycast(playerAimPivot.position, dirFromPlayer, distance, wallLayer);
-            return hit.collider == null;
+            return hit.collider == null; 
         }
 
         return false;
     }
 
-    void RotateTowardsPlayer()
+    void RotateTowardsTarget(Vector3 targetPos)
     {
-        Vector2 lookDir = player.position - transform.position;
+        Vector2 lookDir = targetPos - transform.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
@@ -126,14 +156,14 @@ public class Enemy : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
-
+        
         Debug.Log("💀 Musuh Tewas Terkena Hit!");
-
+        
         if (rb != null)
         {
             rb.AddForce(direction * force, ForceMode2D.Impulse);
         }
 
-        Destroy(gameObject, 0.5f);
+        Destroy(gameObject, 0.5f); 
     }
 }
