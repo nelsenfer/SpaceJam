@@ -1,10 +1,14 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public int totalEnemies;
+
+    [Header("Level Transition")]
+    public float transitionDelay = 2f;
 
     void Awake()
     {
@@ -22,17 +26,21 @@ public class GameManager : MonoBehaviour
 
         if (totalEnemies <= 0)
         {
-            LevelComplete();
+            StartCoroutine(LevelCompleteRoutine());
         }
     }
 
-    void LevelComplete()
+    IEnumerator LevelCompleteRoutine()
     {
-        Debug.Log("🎉 SEMUA MUSUH TEWAS! LEVEL CLEAR!");
+        Debug.Log("🎉 LEVEL CLEAR!");
+        yield return new WaitForSeconds(transitionDelay);
+
+        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+        SceneManager.LoadScene(nextSceneIndex);
     }
 
     public void GameOver()
     {
-        Debug.Log("💀 PLAYER TEWAS! GAME OVER!");
+        Debug.Log("💀 GAME OVER!");
     }
 }

@@ -9,6 +9,9 @@ public class Bullet : MonoBehaviour
     [Header("Bullet Type")]
     public bool isEnemyBullet = false;
 
+    [Header("Visual Effects")]
+    public GameObject hitEffectPrefab;
+
     void Start()
     {
         Destroy(gameObject, lifeTime);
@@ -21,6 +24,12 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        if (hitEffectPrefab != null)
+        {
+            GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+            Destroy(effect, 0.5f);
+        }
+
         if (collision.gameObject.layer == LayerMask.NameToLayer("Wall"))
         {
             Destroy(gameObject);
@@ -32,12 +41,23 @@ public class Bullet : MonoBehaviour
             {
                 Vector2 knockbackDir = (collision.transform.position - transform.position).normalized;
                 enemyScript.DieAndKnockback(knockbackDir, knockbackForce);
+
+                if (GameManager.instance != null)
+                {
+                    GameManager.instance.EnemyDied();
+                }
             }
             Destroy(gameObject);
         }
         else if (isEnemyBullet && collision.CompareTag("Player"))
         {
             Debug.Log("PLAYER TERKENA TEMBAKAN! GAME OVER!");
+
+            if (GameManager.instance != null)
+            {
+                GameManager.instance.GameOver();
+            }
+
             Destroy(collision.gameObject);
             Destroy(gameObject);
         }

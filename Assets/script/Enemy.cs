@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Enemy : MonoBehaviour
 {
@@ -22,7 +23,13 @@ public class Enemy : MonoBehaviour
     public float aimDelay = 1f; 
     public float fireCooldown = 3f; 
 
+    [Header("Death Settings")]
+    public Sprite deadSprite; 
+    public float knockbackDuration = 0.15f; 
+    public float destroyDelay = 1.5f; 
+
     Rigidbody2D rb;
+    Animator anim;
     Transform player;
     Transform playerAimPivot;
     bool isDead = false;
@@ -33,6 +40,7 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
         wallLayer = LayerMask.GetMask("Wall");
 
         GameObject p = GameObject.FindGameObjectWithTag("Player");
@@ -54,53 +62,64 @@ public class Enemy : MonoBehaviour
 
         bool closeRange = IsPlayerInCloseRange();
         bool inLight = IsInLightCone();
+        Vector2 direction = Vector2.zero;
 
         if (closeRange || inLight)
         {
-            RotateTowardsTarget(player.position);
+            direction = (player.position - transform.position).normalized;
 
             if (!isAiming)
             {
                 isAiming = true;
                 actionTimer = aimDelay; 
-                
-                if (closeRange) Debug.Log("⚠️ TERDETEKSI: Player masuk radius dekat!");
-                else if (inLight) Debug.Log("🚨 TERDETEKSI: Player tersorot cahaya senter!");
             }
             else
             {
                 actionTimer -= Time.deltaTime;
                 if (actionTimer <= 0f)
                 {
-                    Shoot();
+                    Shoot(player.position);
                     actionTimer = fireCooldown; 
                 }
             }
         }
         else
         {
-            if (isAiming) 
-            {
-                Debug.Log("✅ AMAN: Target hilang dari pandangan.");
-            }
             isAiming = false; 
 
-            if (behavior == BehaviorType.Patrol)
+            if (behavior == BehaviorType.Patrol && waypoints.Length > 0)
             {
-                Patrol();
+                Transform targetWaypoint = waypoints[currentWaypointIndex];
+                direction = (targetWaypoint.position - transform.position).normalized;
+                Patrol(targetWaypoint);
+            }
+        }
+
+        UpdateAnimation(direction);
+    }
+
+    void UpdateAnimation(Vector2 dir)
+    {
+        if (anim != null)
+        {
+            if (dir != Vector2.zero)
+            {
+                anim.SetFloat("LookX", dir.x);
+                anim.SetFloat("LookY", dir.y);
+                anim.SetFloat("Speed", 1f); 
+            }
+            else
+            {
+                anim.SetFloat("Speed", 0f); 
             }
         }
     }
 
-    void Patrol()
+    void Patrol(Transform targetWaypoint)
     {
-        if (waypoints == null || waypoints.Length == 0) return;
-
-        Transform targetWaypoint = waypoints[currentWaypointIndex];
         Vector2 targetPos = targetWaypoint.position;
         Vector2 currentPos = transform.position;
 
-        RotateTowardsTarget(targetWaypoint.position);
         transform.position = Vector2.MoveTowards(currentPos, targetPos, patrolSpeed * Time.deltaTime);
 
         if (Vector2.Distance(transform.position, targetPos) < 0.1f)
@@ -136,19 +155,15 @@ public class Enemy : MonoBehaviour
         return false;
     }
 
-    void RotateTowardsTarget(Vector3 targetPos)
-    {
-        Vector2 lookDir = targetPos - transform.position;
-        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-    }
-
-    void Shoot()
+    void Shoot(Vector2 targetPos)
     {
         if (bulletPrefab != null && firePoint != null)
         {
-            Instantiate(bulletPrefab, firePoint.position, transform.rotation);
-            Debug.Log("💥 Musuh Menembak!");
+            Vector2 lookDir = targetPos - (Vector2)firePoint.position;
+            float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
+            Quaternion bulletRot = Quaternion.Euler(0, 0, angle);
+            
+            Instantiate(bulletPrefab, firePoint.position, bulletRot);
         }
     }
 
@@ -157,13 +172,38 @@ public class Enemy : MonoBehaviour
         if (isDead) return;
         isDead = true;
         
-        Debug.Log("💀 Musuh Tewas Terkena Hit!");
-        
+        StartCoroutine(DeathRoutine(direction, force));
+    }
+
+    IEnumerator DeathRoutine(Vector2 direction, float force)
+    {
+        if (anim != null) anim.enabled = false;
+
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null && deadSprite != null)
+        {
+            sr.sprite = deadSprite;
+        }
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
         if (rb != null)
         {
+            rb.linearVelocity = Vector2.zero; 
             rb.AddForce(direction * force, ForceMode2D.Impulse);
         }
 
-        Destroy(gameObject, 0.5f); 
+        yield return new WaitForSeconds(knockbackDuration);
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.isKinematic = true; 
+        }
+
+        yield return new WaitForSeconds(destroyDelay);
+
+        Destroy(gameObject);
     }
 }
