@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -18,6 +19,9 @@ public class PlayerController : MonoBehaviour
     public LayerMask obstacleLayer;
     public Transform redDot;
 
+    [Header("Transition Settings")]
+    public float startDelay = 2f;
+
     Rigidbody2D rb;
     Animator anim;
     Vector2 moveInput;
@@ -26,6 +30,9 @@ public class PlayerController : MonoBehaviour
 
     InputAction moveAction;
     InputAction shootAction;
+
+    private bool isReadyToPlay = false;
+    private bool hasInteracted = false;
 
     void Start()
     {
@@ -43,23 +50,19 @@ public class PlayerController : MonoBehaviour
         shootAction = new InputAction("Shoot", binding: "<Mouse>/leftButton");
         shootAction.performed += ctx => Shoot();
         shootAction.Enable();
+
+        StartCoroutine(StartDelayRoutine());
+    }
+
+    IEnumerator StartDelayRoutine()
+    {
+        Time.timeScale = 1f;
+        yield return new WaitForSecondsRealtime(startDelay);
+        isReadyToPlay = true;
     }
 
     void Update()
     {
-        moveInput = moveAction.ReadValue<Vector2>();
-
-        if (moveInput.sqrMagnitude > 0)
-        {
-            Time.timeScale = 1f;
-        }
-        else
-        {
-            Time.timeScale = 0.03f;
-        }
-
-        Time.fixedDeltaTime = 0.02f * Time.timeScale;
-
         if (Mouse.current != null)
         {
             Vector2 screenPos = Mouse.current.position.ReadValue();
@@ -76,12 +79,44 @@ public class PlayerController : MonoBehaviour
         Quaternion targetRotation = Quaternion.Euler(0, 0, targetAngle);
         aimPivot.rotation = Quaternion.Lerp(aimPivot.rotation, targetRotation, aimLerpSpeed * Time.unscaledDeltaTime);
 
-        UpdateAnimationDirection();
         DrawLaser();
+
+        if (!isReadyToPlay)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
+        moveInput = moveAction.ReadValue<Vector2>();
+
+        if (!hasInteracted && (moveInput.sqrMagnitude > 0 || Mouse.current.leftButton.wasPressedThisFrame))
+        {
+            hasInteracted = true;
+        }
+
+        if (!hasInteracted)
+        {
+            Time.timeScale = 1f;
+        }
+        else
+        {
+            if (moveInput.sqrMagnitude > 0)
+            {
+                Time.timeScale = 1f;
+            }
+            else
+            {
+                Time.timeScale = 0.03f;
+            }
+        }
+
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+        UpdateAnimationDirection();
     }
 
     void FixedUpdate()
     {
+        if (!isReadyToPlay) return;
         rb.MovePosition(rb.position + moveInput.normalized * moveSpeed * Time.fixedDeltaTime);
     }
 
@@ -107,6 +142,10 @@ public class PlayerController : MonoBehaviour
 
     void Shoot()
     {
+        if (!isReadyToPlay) return;
+
+        hasInteracted = true;
+
         if (Time.unscaledTime >= nextFireTime && bulletPrefab != null && firePoint != null)
         {
             Instantiate(bulletPrefab, firePoint.position, aimPivot.rotation);
