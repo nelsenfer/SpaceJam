@@ -157,7 +157,7 @@ public class Enemy : MonoBehaviour
 
     void Shoot(Vector2 targetPos)
     {
-        if (bulletPrefab != null && firePoint != null)
+        if (bulletPrefab != null && firePoint != null || GameManager.instance.isShooting == true)
         {
             Vector2 lookDir = targetPos - (Vector2)firePoint.position;
             float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
