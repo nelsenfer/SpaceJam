@@ -104,7 +104,7 @@ public class PlayerController : MonoBehaviour
             {
                 Time.timeScale = 1f;
             }
-            else
+            else if (Button_Manager.Instance.normalTime == false)
             {
                 Time.timeScale = 0.03f;
             }
@@ -142,7 +142,7 @@ public class PlayerController : MonoBehaviour
 
     void Shoot()
     {
-        if (!isReadyToPlay) return;
+        if (!isReadyToPlay || GameManager.instance.isShooting == false ) return;
 
         hasInteracted = true;
 

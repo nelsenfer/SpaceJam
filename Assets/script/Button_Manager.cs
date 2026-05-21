@@ -12,7 +12,7 @@ public class Button_Manager : MonoBehaviour
     [SerializeField] private GameObject setting;
     [SerializeField] private GameObject credit;
     public TMP_Dropdown resolutionDropdown;
-
+    
 
     [Header("Audio Settings")]
     public AudioMixerSnapshot normalSnapshot;
@@ -21,6 +21,7 @@ public class Button_Manager : MonoBehaviour
     [Header("Logic")]
     private Resolution[] resolutions;
     public static bool GameIsPaused = false;
+    public bool normalTime = false;
     public static Button_Manager Instance;
 
     private void Awake()
@@ -69,12 +70,9 @@ public class Button_Manager : MonoBehaviour
     }
 
     // --- LOGIKA TOMBOL ---
-
-    public void playButton()
+    public void goOtherScene(string Scene)
     {
-        // Kita panggil Coroutine di sini
-        ButtonClick(); // Suara klik
-
+    
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.musicSource.Stop(); // Matikan musik segera
@@ -83,16 +81,32 @@ public class Button_Manager : MonoBehaviour
         if (SceneTransitionManager.Instance != null)
         {
             // Memanggil fungsi LoadScene kustom kita yang mengontrol animasi masuk-keluar
-            SceneTransitionManager.Instance.LoadScene("Level 1");
+            SceneTransitionManager.Instance.LoadScene(Scene); 
         }
         else
         {
             // Jika lupa memasang SceneTransitionManager, game akan memakai fallback ini agar tidak macet
             Debug.LogWarning("SceneTransitionManager tidak ditemukan! Menjalankan LoadScene instan.");
-            SceneManager.LoadScene("Level 1");
+            SceneManager.LoadScene(Scene);
         }
+        normalTime = false;
     }
 
+
+    public void playButton()
+    {
+        ButtonClick(); // Suara klik
+        goOtherScene("Level 1");
+    }
+    
+    public void goMainMenu()
+    {
+        ButtonClick(); // Suara klik
+        goOtherScene("MainMenu");
+        normalTime = true;
+        Time.timeScale = 1f;
+        
+    }
 
     public void settingButton()
     {
@@ -111,7 +125,7 @@ public class Button_Manager : MonoBehaviour
     {
         if (GameIsPaused) Resume();
         else Pause();
-
+        
         settingButton(); // Membuka/menutup menu setting saat pause
     }
 
@@ -143,7 +157,7 @@ public class Button_Manager : MonoBehaviour
     public void QuitButton()
     {
         ButtonClick();
-        Debug.Log("Game is exiting");
+        Debug.Log("Game is exiting"); 
         Application.Quit();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
