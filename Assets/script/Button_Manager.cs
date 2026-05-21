@@ -12,7 +12,7 @@ public class Button_Manager : MonoBehaviour
     [SerializeField] private GameObject setting;
     [SerializeField] private GameObject credit;
     public TMP_Dropdown resolutionDropdown;
-    
+
 
     [Header("Audio Settings")]
     public AudioMixerSnapshot normalSnapshot;
@@ -72,7 +72,7 @@ public class Button_Manager : MonoBehaviour
     // --- LOGIKA TOMBOL ---
     public void goOtherScene(string Scene)
     {
-    
+
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.musicSource.Stop(); // Matikan musik segera
@@ -81,7 +81,7 @@ public class Button_Manager : MonoBehaviour
         if (SceneTransitionManager.Instance != null)
         {
             // Memanggil fungsi LoadScene kustom kita yang mengontrol animasi masuk-keluar
-            SceneTransitionManager.Instance.LoadScene(Scene); 
+            SceneTransitionManager.Instance.LoadScene(Scene);
         }
         else
         {
@@ -96,16 +96,17 @@ public class Button_Manager : MonoBehaviour
     public void playButton()
     {
         ButtonClick(); // Suara klik
-        goOtherScene("Level 1");
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-    
+
     public void goMainMenu()
     {
         ButtonClick(); // Suara klik
         goOtherScene("MainMenu");
         normalTime = true;
         Time.timeScale = 1f;
-        
+
     }
 
     public void settingButton()
@@ -125,7 +126,7 @@ public class Button_Manager : MonoBehaviour
     {
         if (GameIsPaused) Resume();
         else Pause();
-        
+
         settingButton(); // Membuka/menutup menu setting saat pause
     }
 
@@ -154,10 +155,17 @@ public class Button_Manager : MonoBehaviour
         AudioManager.Instance.PlaySFX(AudioManager.Instance.Click);
     }
 
+    public void retryButton()
+    {
+        ButtonClick();
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
     public void QuitButton()
     {
         ButtonClick();
-        Debug.Log("Game is exiting"); 
+        Debug.Log("Game is exiting");
         Application.Quit();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;

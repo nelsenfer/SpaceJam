@@ -4608,7 +4608,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5462513673542323826}
         m_TargetAssemblyTypeName: Button_Manager, Assembly-CSharp
-        m_MethodName: playButton
+        m_MethodName: retryButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
