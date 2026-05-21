@@ -12,7 +12,7 @@ public class Button_Manager : MonoBehaviour
     [SerializeField] private GameObject setting;
     [SerializeField] private GameObject credit;
     public TMP_Dropdown resolutionDropdown;
-    
+
 
     [Header("Audio Settings")]
     public AudioMixerSnapshot normalSnapshot;
@@ -74,7 +74,7 @@ public class Button_Manager : MonoBehaviour
     {
         // Kita panggil Coroutine di sini
         ButtonClick(); // Suara klik
-    
+
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.musicSource.Stop(); // Matikan musik segera
@@ -83,13 +83,13 @@ public class Button_Manager : MonoBehaviour
         if (SceneTransitionManager.Instance != null)
         {
             // Memanggil fungsi LoadScene kustom kita yang mengontrol animasi masuk-keluar
-            SceneTransitionManager.Instance.LoadScene("SampleScene"); 
+            SceneTransitionManager.Instance.LoadScene("Level 1");
         }
         else
         {
             // Jika lupa memasang SceneTransitionManager, game akan memakai fallback ini agar tidak macet
             Debug.LogWarning("SceneTransitionManager tidak ditemukan! Menjalankan LoadScene instan.");
-            SceneManager.LoadScene("SampleScene");
+            SceneManager.LoadScene("Level 1");
         }
     }
 
@@ -111,7 +111,7 @@ public class Button_Manager : MonoBehaviour
     {
         if (GameIsPaused) Resume();
         else Pause();
-        
+
         settingButton(); // Membuka/menutup menu setting saat pause
     }
 
@@ -143,7 +143,7 @@ public class Button_Manager : MonoBehaviour
     public void QuitButton()
     {
         ButtonClick();
-        Debug.Log("Game is exiting"); 
+        Debug.Log("Game is exiting");
         Application.Quit();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
