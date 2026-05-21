@@ -198,6 +198,7 @@ public class SceneTransitionManager : MonoBehaviour
 
     public void TriggerPlayIn()
     {
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.closeDoor);
         StartCoroutine(PlayInSequence());
     }
 
@@ -214,6 +215,7 @@ public class SceneTransitionManager : MonoBehaviour
 
     public void TriggerPlayOut()
     {
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.openDoor);
         StartCoroutine(PlayOutSequence());
     }
 

@@ -60,6 +60,7 @@ public class titleScreen : MonoBehaviour
         Debug.Log($"<color=yellow>[Title Screen]</color> Tombol terdeteksi: <b>{control.path}</b>. Memulai transisi scene!");
 
         // Panggil Manager Transisi untuk menutup layar dan pindah ke Main Menu
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.click);
         TriggerMenuTransition();
     }
 

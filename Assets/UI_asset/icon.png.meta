@@ -1,34 +1,10 @@
 fileFormatVersion: 2
-guid: 1492baa7a8364104994226bf00e605cc
+guid: 234ba2ca2ab6eb14088c424048469d96
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5528363882060916420
-    second: Logo Blind Shot fix_0
-  - first:
-      213: 8994864145522206181
-    second: Logo Blind Shot fix_1
-  - first:
-      213: -3499658914620947740
-    second: Logo Blind Shot fix_2
-  - first:
-      213: -8639159346103220077
-    second: Logo Blind Shot fix_3
-  - first:
-      213: 5507416264920242180
-    second: Logo Blind Shot fix_4
-  - first:
-      213: 2735522289486270191
-    second: Logo Blind Shot fix_5
-  - first:
-      213: -7240512465675603521
-    second: Logo Blind Shot fix_6
-  - first:
-      213: 4552405692645219153
-    second: Logo Blind Shot fix_7
-  - first:
-      213: -85380952807661905
-    second: Logo Blind Shot fix_8
+      213: 6934086728263231946
+    second: icon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -137,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Logo Blind Shot fix_0
+      name: icon_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 372
-        width: 1920
-        height: 345
+        x: 82
+        y: 0
+        width: 624
+        height: 750
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c39d8acf65e4743b0800000000000000
-      internalID: -5528363882060916420
+      spriteID: ac961e71423da3060800000000000000
+      internalID: 6934086728263231946
       vertices: []
       indices: 
       edges: []
@@ -162,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 09c5a64ae2f04fc43a141a108d344c6f
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -172,15 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Logo Blind Shot fix_0: -5528363882060916420
-      Logo Blind Shot fix_1: 8994864145522206181
-      Logo Blind Shot fix_2: -3499658914620947740
-      Logo Blind Shot fix_3: -8639159346103220077
-      Logo Blind Shot fix_4: 5507416264920242180
-      Logo Blind Shot fix_5: 2735522289486270191
-      Logo Blind Shot fix_6: -7240512465675603521
-      Logo Blind Shot fix_7: 4552405692645219153
-      Logo Blind Shot fix_8: -85380952807661905
+      icon_0: 6934086728263231946
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -162,6 +162,7 @@ public class Enemy : MonoBehaviour
             Vector2 lookDir = targetPos - (Vector2)firePoint.position;
             float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
             Quaternion bulletRot = Quaternion.Euler(0, 0, angle);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.shoot);
             
             Instantiate(bulletPrefab, firePoint.position, bulletRot);
         }
@@ -171,7 +172,6 @@ public class Enemy : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
-        
         StartCoroutine(DeathRoutine(direction, force));
     }
 

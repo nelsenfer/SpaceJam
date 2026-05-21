@@ -110,6 +110,20 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // ========================================================
+        // HUBUNGKAN KE AUDIOMANAGER DI SINI
+        // ========================================================
+        if (isReadyToPlay && moveInput.sqrMagnitude > 0 && Time.timeScale > 0.1f)
+        {
+            // Panggil fungsi loop lewat Singleton AudioManager
+            AudioManager.Instance.PlayLoopingSFX(AudioManager.Instance.walk);
+        }
+        else
+        {
+            // Stop audio saat lepas tombol WASD atau saat waktu melambat (SUPERHOT mechanic)
+            AudioManager.Instance.StopLoopingSFX();
+        }
+
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
         UpdateAnimationDirection();
     }
@@ -145,6 +159,7 @@ public class PlayerController : MonoBehaviour
         if (!isReadyToPlay || GameManager.instance.isShooting == false ) return;
 
         hasInteracted = true;
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.shoot);
 
         if (Time.unscaledTime >= nextFireTime && bulletPrefab != null && firePoint != null)
         {

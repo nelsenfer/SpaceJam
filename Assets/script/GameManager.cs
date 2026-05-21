@@ -87,8 +87,33 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("🎉 LEVEL CLEAR!");
         yield return new WaitForSeconds(transitionDelay);
+
+        // 1. Hitung indeks scene berikutnya
         int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
-        SceneManager.LoadScene(nextSceneIndex);
+
+        // 2. Cek apakah indeks berikutnya masih ada di dalam Build Settings
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            // Ambil jalur (path) scene berdasarkan indeks, lalu potong hanya mengambil namanya saja
+            string scenePath = SceneUtility.GetScenePathByBuildIndex(nextSceneIndex);
+            string nextSceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+
+            // 3. Panggil transisi lewat Button_Manager
+            if (Button_Manager.Instance != null)
+            {
+                Button_Manager.Instance.goOtherScene(nextSceneName);
+            }
+            else
+            {
+                // Fallback jika Button_Manager tidak sengaja terhapus/tidak ada
+                SceneManager.LoadScene(nextSceneIndex);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Tidak ada scene berikutnya di Build Settings! Kembali ke MainMenu.");
+            if (Button_Manager.Instance != null) Button_Manager.Instance.goMainMenu();
+        }
     }
 
     public void GameOver()

@@ -93,6 +93,7 @@ public class buttonAnimation : MonoBehaviour
         if (Text != null)
         {
             Text.color = targetColor;
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.hover);
         }
     }
 
@@ -145,6 +146,7 @@ public class buttonAnimation : MonoBehaviour
         if (btn != null && btn.onClick != null)
         {
             btn.onClick.Invoke();
+            Button_Manager.Instance.ButtonClick();
         }
     }
 }

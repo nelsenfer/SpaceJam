@@ -97,7 +97,7 @@ public class Button_Manager : MonoBehaviour
     {
         ButtonClick(); // Suara klik
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        goOtherScene("Level 1");
     }
 
     public void goMainMenu()
@@ -152,14 +152,19 @@ public class Button_Manager : MonoBehaviour
 
     public void ButtonClick()
     {
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.Click);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.click);
     }
 
     public void retryButton()
     {
-        ButtonClick();
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        ButtonClick(); // Mainkan suara klik
+        Time.timeScale = 1f; // Reset waktu menjadi normal sebelum reload
+        
+        // Mengambil nama scene yang sedang aktif saat ini
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        
+        // Jalankan transisi menuju scene tersebut
+        goOtherScene(currentSceneName);
     }
 
     public void QuitButton()

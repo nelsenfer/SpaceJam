@@ -46,12 +46,14 @@ public class Bullet : MonoBehaviour
                 {
                     GameManager.instance.EnemyDied();
                 }
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.hit);
             }
             Destroy(gameObject);
         }
         else if (isEnemyBullet && collision.CompareTag("Player"))
         {
             Debug.Log("PLAYER TERKENA TEMBAKAN! GAME OVER!");
+            AudioManager.Instance.StopLoopingSFX();
 
             if (GameManager.instance != null)
             {
@@ -60,6 +62,7 @@ public class Bullet : MonoBehaviour
 
             Destroy(collision.gameObject);
             Destroy(gameObject);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.hit);
         }
     }
 }
